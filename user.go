@@ -27,7 +27,7 @@ func (r *Repo) CreateUser(ctx context.Context, user dofus.User) (id string, err 
 }
 
 func (r *Repo) Users(ctx context.Context) (users map[string]dofus.User, err error) {
-	query := "SELECT id, email, nickname, community, hash, chat_channels, secret_question, secret_answer" +
+	query := "SELECT id, email, nickname, gender, community, hash, chat_channels, secret_question, secret_answer" +
 		" FROM users;"
 
 	rows, err := r.pool.Query(ctx, query)
@@ -41,7 +41,7 @@ func (r *Repo) Users(ctx context.Context) (users map[string]dofus.User, err erro
 		var user dofus.User
 		var chatChannels string
 
-		err = rows.Scan(&user.Id, &user.Email, &user.Nickname, &user.Community, &user.Hash, &chatChannels,
+		err = rows.Scan(&user.Id, &user.Email, &user.Nickname, &user.Gender, &user.Community, &user.Hash, &chatChannels,
 			&user.SecretQuestion, &user.SecretAnswer)
 		if err != nil {
 			return
@@ -58,7 +58,7 @@ func (r *Repo) Users(ctx context.Context) (users map[string]dofus.User, err erro
 }
 
 func (r *Repo) User(ctx context.Context, id string) (user dofus.User, err error) {
-	query := "SELECT id, email, nickname, community, hash, chat_channels, secret_question, secret_answer" +
+	query := "SELECT id, email, nickname, gender, community, hash, chat_channels, secret_question, secret_answer" +
 		" FROM users" +
 		" WHERE id = $1;"
 
@@ -66,7 +66,7 @@ func (r *Repo) User(ctx context.Context, id string) (user dofus.User, err error)
 
 	err = repoError(
 		r.pool.QueryRow(ctx, query, id).
-			Scan(&user.Id, &user.Email, &user.Nickname, &user.Community, &user.Hash, &chatChannels, &user.SecretQuestion,
+			Scan(&user.Id, &user.Email, &user.Nickname, &user.Gender, &user.Community, &user.Hash, &chatChannels, &user.SecretQuestion,
 				&user.SecretAnswer),
 	)
 
@@ -79,7 +79,7 @@ func (r *Repo) User(ctx context.Context, id string) (user dofus.User, err error)
 }
 
 func (r *Repo) UserByNickname(ctx context.Context, nickname string) (user dofus.User, err error) {
-	query := "SELECT id, email, nickname, community, hash, chat_channels, secret_question, secret_answer" +
+	query := "SELECT id, email, nickname, gender, community, hash, chat_channels, secret_question, secret_answer" +
 		" FROM users" +
 		" WHERE nickname = $1;"
 
@@ -87,7 +87,7 @@ func (r *Repo) UserByNickname(ctx context.Context, nickname string) (user dofus.
 
 	err = repoError(
 		r.pool.QueryRow(ctx, query, nickname).
-			Scan(&user.Id, &user.Email, &user.Nickname, &user.Community, &user.Hash, &chatChannels, &user.SecretQuestion,
+			Scan(&user.Id, &user.Email, &user.Nickname, &user.Gender, &user.Community, &user.Hash, &chatChannels, &user.SecretQuestion,
 				&user.SecretAnswer),
 	)
 	user.ChatChannels = make(map[dofustyp.ChatChannel]struct{}, len([]rune(chatChannels)))

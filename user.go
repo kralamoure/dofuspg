@@ -9,7 +9,7 @@ import (
 )
 
 func (r *Repo) CreateUser(ctx context.Context, user dofus.User) (id string, err error) {
-	query := "INSERT INTO users (email, nickname, gender, community, hash, chat_channels, secret_question, secret_answer)" +
+	query := "INSERT INTO dofus.users (email, nickname, gender, community, hash, chat_channels, secret_question, secret_answer)" +
 		" VALUES ($1, $2, $3, $4, $5, $6, $7, $8)" +
 		" RETURNING id;"
 
@@ -28,7 +28,7 @@ func (r *Repo) CreateUser(ctx context.Context, user dofus.User) (id string, err 
 
 func (r *Repo) Users(ctx context.Context) (users map[string]dofus.User, err error) {
 	query := "SELECT id, email, nickname, gender, community, hash, chat_channels, secret_question, secret_answer" +
-		" FROM users;"
+		" FROM dofus.users;"
 
 	rows, err := r.pool.Query(ctx, query)
 	if err != nil {
@@ -59,7 +59,7 @@ func (r *Repo) Users(ctx context.Context) (users map[string]dofus.User, err erro
 
 func (r *Repo) User(ctx context.Context, id string) (user dofus.User, err error) {
 	query := "SELECT id, email, nickname, gender, community, hash, chat_channels, secret_question, secret_answer" +
-		" FROM users" +
+		" FROM dofus.users" +
 		" WHERE id = $1;"
 
 	var chatChannels string
@@ -80,7 +80,7 @@ func (r *Repo) User(ctx context.Context, id string) (user dofus.User, err error)
 
 func (r *Repo) UserByNickname(ctx context.Context, nickname string) (user dofus.User, err error) {
 	query := "SELECT id, email, nickname, gender, community, hash, chat_channels, secret_question, secret_answer" +
-		" FROM users" +
+		" FROM dofus.users" +
 		" WHERE nickname = $1;"
 
 	var chatChannels string
@@ -106,7 +106,7 @@ func (r *Repo) UserAddChatChannels(ctx context.Context, id string, chatChannels 
 	defer tx.Rollback(ctx)
 
 	var chatChannelsStr string
-	err = repoError(tx.QueryRow(ctx, "SELECT chat_channels FROM users WHERE id = $1;", id).
+	err = repoError(tx.QueryRow(ctx, "SELECT chat_channels FROM dofus.users WHERE id = $1;", id).
 		Scan(&chatChannelsStr))
 	if err != nil {
 		return err
@@ -121,7 +121,7 @@ func (r *Repo) UserAddChatChannels(ctx context.Context, id string, chatChannels 
 	}
 
 	_, err = tx.Exec(ctx,
-		"UPDATE users"+
+		"UPDATE dofus.users"+
 			" SET chat_channels = $2"+
 			" WHERE id = $1;", id, sb.String())
 	if err != nil {
@@ -139,7 +139,7 @@ func (r *Repo) UserRemoveChatChannels(ctx context.Context, id string, chatChanne
 	defer tx.Rollback(ctx)
 
 	var chatChannelsStr string
-	err = repoError(tx.QueryRow(ctx, "SELECT chat_channels FROM users WHERE id = $1;", id).
+	err = repoError(tx.QueryRow(ctx, "SELECT chat_channels FROM dofus.users WHERE id = $1;", id).
 		Scan(&chatChannelsStr))
 	if err != nil {
 		return err
@@ -150,7 +150,7 @@ func (r *Repo) UserRemoveChatChannels(ctx context.Context, id string, chatChanne
 	}
 
 	_, err = tx.Exec(ctx,
-		"UPDATE users"+
+		"UPDATE dofus.users"+
 			" SET chat_channels = $2"+
 			" WHERE id = $1;", id, chatChannelsStr)
 	if err != nil {

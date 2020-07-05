@@ -10,7 +10,7 @@ import (
 
 func (r *Repo) CreateUser(ctx context.Context, user dofus.User) (id string, err error) {
 	query := "INSERT INTO users (email, nickname, gender, community, hash, chat_channels, secret_question, secret_answer)" +
-		" VALUES ($1, $2, $3, $4, $5, $6, $7)" +
+		" VALUES ($1, $2, $3, $4, $5, $6, $7, $8)" +
 		" RETURNING id;"
 
 	chatChannels := &strings.Builder{}

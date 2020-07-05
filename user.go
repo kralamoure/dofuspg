@@ -14,8 +14,38 @@ func (r *Repo) CreateUser(ctx context.Context, user dofus.User) (id string, err 
 		" RETURNING id;"
 
 	chatChannels := &strings.Builder{}
-	for chatChannel := range user.ChatChannels {
-		chatChannels.WriteRune(rune(chatChannel))
+	if user.ChatChannels.Admin {
+		chatChannels.WriteRune(rune(dofustyp.ChatChannelAdmin))
+	}
+	if user.ChatChannels.Info {
+		chatChannels.WriteRune(rune(dofustyp.ChatChannelInfo))
+	}
+	if user.ChatChannels.Public {
+		chatChannels.WriteRune(rune(dofustyp.ChatChannelPublic))
+	}
+	if user.ChatChannels.Private {
+		chatChannels.WriteRune(rune(dofustyp.ChatChannelPrivate))
+	}
+	if user.ChatChannels.Group {
+		chatChannels.WriteRune(rune(dofustyp.ChatChannelGroup))
+	}
+	if user.ChatChannels.Team {
+		chatChannels.WriteRune(rune(dofustyp.ChatChannelTeam))
+	}
+	if user.ChatChannels.Guild {
+		chatChannels.WriteRune(rune(dofustyp.ChatChannelGuild))
+	}
+	if user.ChatChannels.Alignment {
+		chatChannels.WriteRune(rune(dofustyp.ChatChannelAlignment))
+	}
+	if user.ChatChannels.Recruitment {
+		chatChannels.WriteRune(rune(dofustyp.ChatChannelRecruitment))
+	}
+	if user.ChatChannels.Trading {
+		chatChannels.WriteRune(rune(dofustyp.ChatChannelTrading))
+	}
+	if user.ChatChannels.Newbies {
+		chatChannels.WriteRune(rune(dofustyp.ChatChannelNewbies))
 	}
 
 	err = repoError(
@@ -46,12 +76,7 @@ func (r *Repo) Users(ctx context.Context) (users map[string]dofus.User, err erro
 		if err != nil {
 			return
 		}
-
-		user.ChatChannels = make(map[dofustyp.ChatChannel]struct{}, len([]rune(chatChannels)))
-		for _, chatChannel := range []rune(chatChannels) {
-			user.ChatChannels[dofustyp.ChatChannel(chatChannel)] = struct{}{}
-		}
-
+		user.ChatChannels = userChatChannels(chatChannels)
 		users[user.Id] = user
 	}
 	return
@@ -63,18 +88,12 @@ func (r *Repo) User(ctx context.Context, id string) (user dofus.User, err error)
 		" WHERE id = $1;"
 
 	var chatChannels string
-
 	err = repoError(
 		r.pool.QueryRow(ctx, query, id).
 			Scan(&user.Id, &user.Email, &user.Nickname, &user.Gender, &user.Community, &user.Hash, &chatChannels, &user.SecretQuestion,
 				&user.SecretAnswer),
 	)
-
-	user.ChatChannels = make(map[dofustyp.ChatChannel]struct{}, len([]rune(chatChannels)))
-	for _, chatChannel := range []rune(chatChannels) {
-		user.ChatChannels[dofustyp.ChatChannel(chatChannel)] = struct{}{}
-	}
-
+	user.ChatChannels = userChatChannels(chatChannels)
 	return
 }
 
@@ -84,17 +103,12 @@ func (r *Repo) UserByNickname(ctx context.Context, nickname string) (user dofus.
 		" WHERE nickname = $1;"
 
 	var chatChannels string
-
 	err = repoError(
 		r.pool.QueryRow(ctx, query, nickname).
 			Scan(&user.Id, &user.Email, &user.Nickname, &user.Gender, &user.Community, &user.Hash, &chatChannels, &user.SecretQuestion,
 				&user.SecretAnswer),
 	)
-	user.ChatChannels = make(map[dofustyp.ChatChannel]struct{}, len([]rune(chatChannels)))
-	for _, chatChannel := range []rune(chatChannels) {
-		user.ChatChannels[dofustyp.ChatChannel(chatChannel)] = struct{}{}
-	}
-
+	user.ChatChannels = userChatChannels(chatChannels)
 	return
 }
 
@@ -158,4 +172,35 @@ func (r *Repo) UserRemoveChatChannels(ctx context.Context, id string, chatChanne
 	}
 
 	return tx.Commit(ctx)
+}
+
+func userChatChannels(s string) dofus.UserChatChannels {
+	var chatChannels dofus.UserChatChannels
+	for _, chatChannel := range []dofustyp.ChatChannel(s) {
+		switch chatChannel {
+		case dofustyp.ChatChannelAdmin:
+			chatChannels.Admin = true
+		case dofustyp.ChatChannelInfo:
+			chatChannels.Info = true
+		case dofustyp.ChatChannelPublic:
+			chatChannels.Public = true
+		case dofustyp.ChatChannelPrivate:
+			chatChannels.Private = true
+		case dofustyp.ChatChannelGroup:
+			chatChannels.Group = true
+		case dofustyp.ChatChannelTeam:
+			chatChannels.Team = true
+		case dofustyp.ChatChannelGuild:
+			chatChannels.Guild = true
+		case dofustyp.ChatChannelAlignment:
+			chatChannels.Alignment = true
+		case dofustyp.ChatChannelRecruitment:
+			chatChannels.Recruitment = true
+		case dofustyp.ChatChannelTrading:
+			chatChannels.Trading = true
+		case dofustyp.ChatChannelNewbies:
+			chatChannels.Newbies = true
+		}
+	}
+	return chatChannels
 }

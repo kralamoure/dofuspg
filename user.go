@@ -13,9 +13,14 @@ func (r *Repo) CreateUser(ctx context.Context, user dofus.User) (id string, err 
 		" VALUES ($1, $2, $3, $4, $5, $6, $7)" +
 		" RETURNING id;"
 
+	chatChannels := &strings.Builder{}
+	for chatChannel := range user.ChatChannels {
+		chatChannels.WriteRune(rune(chatChannel))
+	}
+
 	err = repoError(
 		r.pool.QueryRow(ctx, query,
-			user.Email, user.Nickname, user.Community, user.Hash, user.ChatChannels, user.SecretQuestion, user.SecretAnswer).
+			user.Email, user.Nickname, user.Community, user.Hash, chatChannels, user.SecretQuestion, user.SecretAnswer).
 			Scan(&id),
 	)
 	return
@@ -34,11 +39,19 @@ func (r *Repo) Users(ctx context.Context) (users map[string]dofus.User, err erro
 	users = make(map[string]dofus.User)
 	for rows.Next() {
 		var user dofus.User
-		err = rows.Scan(&user.Id, &user.Email, &user.Nickname, &user.Community, &user.Hash, &user.ChatChannels,
+		var chatChannels string
+
+		err = rows.Scan(&user.Id, &user.Email, &user.Nickname, &user.Community, &user.Hash, &chatChannels,
 			&user.SecretQuestion, &user.SecretAnswer)
 		if err != nil {
 			return
 		}
+
+		user.ChatChannels = make(map[dofustyp.ChatChannel]struct{}, len([]rune(chatChannels)))
+		for _, chatChannel := range []rune(chatChannels) {
+			user.ChatChannels[dofustyp.ChatChannel(chatChannel)] = struct{}{}
+		}
+
 		users[user.Id] = user
 	}
 	return
@@ -49,11 +62,19 @@ func (r *Repo) User(ctx context.Context, id string) (user dofus.User, err error)
 		" FROM users" +
 		" WHERE id = $1;"
 
+	var chatChannels string
+
 	err = repoError(
 		r.pool.QueryRow(ctx, query, id).
-			Scan(&user.Id, &user.Email, &user.Nickname, &user.Community, &user.Hash, &user.ChatChannels, &user.SecretQuestion,
+			Scan(&user.Id, &user.Email, &user.Nickname, &user.Community, &user.Hash, &chatChannels, &user.SecretQuestion,
 				&user.SecretAnswer),
 	)
+
+	user.ChatChannels = make(map[dofustyp.ChatChannel]struct{}, len([]rune(chatChannels)))
+	for _, chatChannel := range []rune(chatChannels) {
+		user.ChatChannels[dofustyp.ChatChannel(chatChannel)] = struct{}{}
+	}
+
 	return
 }
 
@@ -62,11 +83,18 @@ func (r *Repo) UserByNickname(ctx context.Context, nickname string) (user dofus.
 		" FROM users" +
 		" WHERE nickname = $1;"
 
+	var chatChannels string
+
 	err = repoError(
 		r.pool.QueryRow(ctx, query, nickname).
-			Scan(&user.Id, &user.Email, &user.Nickname, &user.Community, &user.Hash, &user.ChatChannels, &user.SecretQuestion,
+			Scan(&user.Id, &user.Email, &user.Nickname, &user.Community, &user.Hash, &chatChannels, &user.SecretQuestion,
 				&user.SecretAnswer),
 	)
+	user.ChatChannels = make(map[dofustyp.ChatChannel]struct{}, len([]rune(chatChannels)))
+	for _, chatChannel := range []rune(chatChannels) {
+		user.ChatChannels[dofustyp.ChatChannel(chatChannel)] = struct{}{}
+	}
+
 	return
 }
 

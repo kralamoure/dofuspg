@@ -5,23 +5,17 @@ import (
 	"strings"
 
 	"github.com/kralamoure/dofus"
-	"github.com/kralamoure/dofus/dofusrepo"
 	"github.com/kralamoure/dofus/dofustyp"
 )
 
 func (r *Repo) CreateUser(ctx context.Context, user dofus.User) (id string, err error) {
-	repoUser, err := dofusrepo.NewUser(user)
-	if err != nil {
-		return
-	}
-
-	query := "INSERT INTO common.users (email, nickname, community, hash, chat_channels, secret_question, secret_answer)" +
+	query := "INSERT INTO users (email, nickname, community, hash, chat_channels, secret_question, secret_answer)" +
 		" VALUES ($1, $2, $3, $4, $5, $6, $7)" +
 		" RETURNING id;"
 
 	err = repoError(
 		r.pool.QueryRow(ctx, query,
-			repoUser.Email, repoUser.Nickname, repoUser.Community, repoUser.Hash, repoUser.ChatChannels, repoUser.SecretQuestion, repoUser.SecretAnswer).
+			user.Email, user.Nickname, user.Community, user.Hash, user.ChatChannels, user.SecretQuestion, user.SecretAnswer).
 			Scan(&id),
 	)
 	return
@@ -29,7 +23,7 @@ func (r *Repo) CreateUser(ctx context.Context, user dofus.User) (id string, err 
 
 func (r *Repo) Users(ctx context.Context) (users map[string]dofus.User, err error) {
 	query := "SELECT id, email, nickname, community, hash, chat_channels, secret_question, secret_answer" +
-		" FROM common.users;"
+		" FROM users;"
 
 	rows, err := r.pool.Query(ctx, query)
 	if err != nil {
@@ -37,57 +31,43 @@ func (r *Repo) Users(ctx context.Context) (users map[string]dofus.User, err erro
 	}
 	defer rows.Close()
 
-	repoUsers := make(map[string]dofusrepo.User)
+	users = make(map[string]dofus.User)
 	for rows.Next() {
-		var repoUser dofusrepo.User
-		err = rows.Scan(&repoUser.Id, &repoUser.Email, &repoUser.Nickname, &repoUser.Community, &repoUser.Hash, &repoUser.ChatChannels,
-			&repoUser.SecretQuestion, &repoUser.SecretAnswer)
+		var user dofus.User
+		err = rows.Scan(&user.Id, &user.Email, &user.Nickname, &user.Community, &user.Hash, &user.ChatChannels,
+			&user.SecretQuestion, &user.SecretAnswer)
 		if err != nil {
 			return
 		}
-		repoUsers[repoUser.Id] = repoUser
-	}
-
-	users = make(map[string]dofus.User, len(repoUsers))
-	for k := range repoUsers {
-		user, err2 := repoUsers[k].Entity()
-		if err2 != nil {
-			err = err2
-			return
-		}
-		users[k] = user
+		users[user.Id] = user
 	}
 	return
 }
 
 func (r *Repo) User(ctx context.Context, id string) (user dofus.User, err error) {
-	var repoUser dofusrepo.User
-
 	query := "SELECT id, email, nickname, community, hash, chat_channels, secret_question, secret_answer" +
-		" FROM common.users" +
+		" FROM users" +
 		" WHERE id = $1;"
 
 	err = repoError(
 		r.pool.QueryRow(ctx, query, id).
-			Scan(&repoUser.Id, &repoUser.Email, &repoUser.Nickname, &repoUser.Community, &repoUser.Hash, &repoUser.ChatChannels, &repoUser.SecretQuestion,
-				&repoUser.SecretAnswer),
+			Scan(&user.Id, &user.Email, &user.Nickname, &user.Community, &user.Hash, &user.ChatChannels, &user.SecretQuestion,
+				&user.SecretAnswer),
 	)
-	return repoUser.Entity()
+	return
 }
 
 func (r *Repo) UserByNickname(ctx context.Context, nickname string) (user dofus.User, err error) {
-	var repoUser dofusrepo.User
-
 	query := "SELECT id, email, nickname, community, hash, chat_channels, secret_question, secret_answer" +
-		" FROM common.users" +
+		" FROM users" +
 		" WHERE nickname = $1;"
 
 	err = repoError(
 		r.pool.QueryRow(ctx, query, nickname).
-			Scan(&repoUser.Id, &repoUser.Email, &repoUser.Nickname, &repoUser.Community, &repoUser.Hash, &repoUser.ChatChannels, &repoUser.SecretQuestion,
-				&repoUser.SecretAnswer),
+			Scan(&user.Id, &user.Email, &user.Nickname, &user.Community, &user.Hash, &user.ChatChannels, &user.SecretQuestion,
+				&user.SecretAnswer),
 	)
-	return repoUser.Entity()
+	return
 }
 
 func (r *Repo) UserAddChatChannels(ctx context.Context, id string, chatChannels ...dofustyp.ChatChannel) error {
@@ -98,7 +78,7 @@ func (r *Repo) UserAddChatChannels(ctx context.Context, id string, chatChannels 
 	defer tx.Rollback(ctx)
 
 	var chatChannelsStr string
-	err = repoError(tx.QueryRow(ctx, "SELECT chat_channels FROM common.users WHERE id = $1;", id).
+	err = repoError(tx.QueryRow(ctx, "SELECT chat_channels FROM users WHERE id = $1;", id).
 		Scan(&chatChannelsStr))
 	if err != nil {
 		return err
@@ -113,7 +93,7 @@ func (r *Repo) UserAddChatChannels(ctx context.Context, id string, chatChannels 
 	}
 
 	_, err = tx.Exec(ctx,
-		"UPDATE common.users"+
+		"UPDATE users"+
 			" SET chat_channels = $2"+
 			" WHERE id = $1;", id, sb.String())
 	if err != nil {
@@ -131,7 +111,7 @@ func (r *Repo) UserRemoveChatChannels(ctx context.Context, id string, chatChanne
 	defer tx.Rollback(ctx)
 
 	var chatChannelsStr string
-	err = repoError(tx.QueryRow(ctx, "SELECT chat_channels FROM common.users WHERE id = $1;", id).
+	err = repoError(tx.QueryRow(ctx, "SELECT chat_channels FROM users WHERE id = $1;", id).
 		Scan(&chatChannelsStr))
 	if err != nil {
 		return err
@@ -142,7 +122,7 @@ func (r *Repo) UserRemoveChatChannels(ctx context.Context, id string, chatChanne
 	}
 
 	_, err = tx.Exec(ctx,
-		"UPDATE common.users"+
+		"UPDATE users"+
 			" SET chat_channels = $2"+
 			" WHERE id = $1;", id, chatChannelsStr)
 	if err != nil {

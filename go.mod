@@ -1,4 +1,4 @@
-module github.com/kralamoure/dofuspostgres
+module github.com/kralamoure/dofuspg
 
 go 1.14
 

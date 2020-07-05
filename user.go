@@ -20,7 +20,7 @@ func (r *Repo) CreateUser(ctx context.Context, user dofus.User) (id string, err 
 
 	err = repoError(
 		r.pool.QueryRow(ctx, query,
-			user.Email, user.Nickname, user.Community, user.Hash, chatChannels, user.SecretQuestion, user.SecretAnswer).
+			user.Email, user.Nickname, user.Community, user.Hash, chatChannels.String(), user.SecretQuestion, user.SecretAnswer).
 			Scan(&id),
 	)
 	return

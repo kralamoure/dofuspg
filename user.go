@@ -9,7 +9,7 @@ import (
 )
 
 func (r *Repo) CreateUser(ctx context.Context, user dofus.User) (id string, err error) {
-	query := "INSERT INTO users (email, nickname, community, hash, chat_channels, secret_question, secret_answer)" +
+	query := "INSERT INTO users (email, nickname, gender, community, hash, chat_channels, secret_question, secret_answer)" +
 		" VALUES ($1, $2, $3, $4, $5, $6, $7)" +
 		" RETURNING id;"
 
@@ -20,7 +20,7 @@ func (r *Repo) CreateUser(ctx context.Context, user dofus.User) (id string, err 
 
 	err = repoError(
 		r.pool.QueryRow(ctx, query,
-			user.Email, user.Nickname, user.Community, user.Hash, chatChannels.String(), user.SecretQuestion, user.SecretAnswer).
+			user.Email, user.Nickname, user.Gender, user.Community, user.Hash, chatChannels.String(), user.SecretQuestion, user.SecretAnswer).
 			Scan(&id),
 	)
 	return

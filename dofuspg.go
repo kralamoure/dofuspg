@@ -1,4 +1,4 @@
-// Package dofuspg implements dofus repository interface for PostgreSQL.
+// Package dofuspg is a library that implements dofus.repo interface (https://github.com/kralamoure/dofus) for a PostgreSQL database.
 package dofuspg
 
 import (

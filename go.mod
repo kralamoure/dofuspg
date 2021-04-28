@@ -9,5 +9,3 @@ require (
 	github.com/kralamoure/dofus v0.0.0-20210428040024-ff9778389468
 	golang.org/x/text v0.3.6 // indirect
 )
-
-replace github.com/kralamoure/dofus => ../dofus

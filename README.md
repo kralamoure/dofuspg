@@ -1,6 +1,6 @@
 # dofuspg
 
-`dofuspg` is a library that implements [dofus.repo](https://github.com/kralamoure/dofus) interface for a PostgreSQL
+`dofuspg` is a library that implements [dofus.Repo](https://github.com/kralamoure/dofus) interface for a PostgreSQL
 database.
 
 ## Requirements

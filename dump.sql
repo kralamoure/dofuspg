@@ -34,14 +34,16 @@ CREATE SCHEMA extensions;
 
 ALTER SCHEMA extensions OWNER TO postgres;
 
-SET default_tablespace = '';
-
-SET default_table_access_method = heap;
-
 
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 CREATE EXTENSION IF NOT EXISTS "citext";
+
+
+SET default_tablespace = '';
+
+SET default_table_access_method = heap;
+
 
 --
 -- Name: accounts; Type: TABLE; Schema: dofus; Owner: postgres

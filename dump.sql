@@ -25,9 +25,23 @@ CREATE SCHEMA dofus;
 
 ALTER SCHEMA dofus OWNER TO postgres;
 
+--
+-- Name: extensions; Type: SCHEMA; Schema: -; Owner: postgres
+--
+
+CREATE SCHEMA extensions;
+
+
+ALTER SCHEMA extensions OWNER TO postgres;
+
 SET default_tablespace = '';
 
 SET default_table_access_method = heap;
+
+
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+CREATE EXTENSION IF NOT EXISTS "citext";
 
 --
 -- Name: accounts; Type: TABLE; Schema: dofus; Owner: postgres
@@ -75,7 +89,7 @@ ALTER TABLE dofus.users
 
 COPY dofus.accounts (id, name, subscription, admin, user_id, last_access, last_ip) FROM stdin;
 42d18784-846d-4848-9a30-1b55f68f0076	admin	2022-01-01 00:00:00+00	t	8f2a7222-46f0-473b-9ab8-240782c43cbb	2021-04-28 03:08:33.943002+00	127.0.0.1
-854d7f77-813d-450f-ae4c-f752d2e356ad	user	2021-01-01 00:00:00+00	t	8f2a7222-46f0-473b-9ab8-240782c43cbb	2021-04-28 03:08:33.943002+00	127.0.0.1
+854d7f77-813d-450f-ae4c-f752d2e356ad	nonadmin	2021-01-01 00:00:00+00	f	8f2a7222-46f0-473b-9ab8-240782c43cbb	2021-04-28 03:08:33.943002+00	127.0.0.1
 \.
 
 
@@ -85,7 +99,7 @@ COPY dofus.accounts (id, name, subscription, admin, user_id, last_access, last_i
 
 COPY dofus.users (id, email, nickname, hash, secret_question, secret_answer, gender, community,
                   chat_channels) FROM stdin;
-8f2a7222-46f0-473b-9ab8-240782c43cbb	hello@kralamoure.com	kralamoure	$argon2id$v=19$m=65536,t=1,p=2$kMLaZ9ovGkPa6+42pjUfpw$u2TkS/vHV4dhqihTu/U6WV04d5y28VWua3ZFGt31hQ0	question	answer	0	4	#$pi*:!^?%
+8f2a7222-46f0-473b-9ab8-240782c43cbb	name@example.com	nickname	$argon2id$v=19$m=65536,t=1,p=2$kMLaZ9ovGkPa6+42pjUfpw$u2TkS/vHV4dhqihTu/U6WV04d5y28VWua3ZFGt31hQ0	question	answer	0	4	#$pi*:!^?%
 \.
 
 

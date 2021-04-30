@@ -33,41 +33,37 @@ SET default_table_access_method = heap;
 -- Name: accounts; Type: TABLE; Schema: dofus; Owner: postgres
 --
 
-CREATE TABLE dofus.accounts
-(
-    id           uuid                     DEFAULT extensions.uuid_generate_v4()                      NOT NULL,
-    name         extensions.citext                                                                   NOT NULL,
-    subscription timestamp with time zone DEFAULT '0001-01-01 00:00:00+00'::timestamp with time zone NOT NULL,
-    admin        boolean                  DEFAULT false                                              NOT NULL,
-    user_id      uuid                                                                                NOT NULL,
-    last_access  timestamp with time zone DEFAULT '0001-01-01 00:00:00+00'::timestamp with time zone NOT NULL,
-    last_ip      text                     DEFAULT ''::text                                           NOT NULL
+CREATE TABLE dofus.accounts (
+                                id uuid DEFAULT extensions.uuid_generate_v4() NOT NULL,
+                                name extensions.citext NOT NULL,
+                                subscription timestamp with time zone DEFAULT '0001-01-01 00:00:00+00'::timestamp with time zone NOT NULL,
+                                admin boolean DEFAULT false NOT NULL,
+                                user_id uuid NOT NULL,
+                                last_access timestamp with time zone DEFAULT '0001-01-01 00:00:00+00'::timestamp with time zone NOT NULL,
+                                last_ip text DEFAULT ''::text NOT NULL
 );
 
 
-ALTER TABLE dofus.accounts
-    OWNER TO postgres;
+ALTER TABLE dofus.accounts OWNER TO postgres;
 
 --
 -- Name: users; Type: TABLE; Schema: dofus; Owner: postgres
 --
 
-CREATE TABLE dofus.users
-(
-    id              uuid    DEFAULT extensions.uuid_generate_v4() NOT NULL,
-    email           extensions.citext                             NOT NULL,
-    nickname        extensions.citext                             NOT NULL,
-    hash            text                                          NOT NULL,
-    secret_question text                                          NOT NULL,
-    secret_answer   text                                          NOT NULL,
-    gender          integer                                       NOT NULL,
-    community       integer DEFAULT 2                             NOT NULL,
-    chat_channels   text    DEFAULT '@i*#$p%!?:^'::text           NOT NULL
+CREATE TABLE dofus.users (
+                             id uuid DEFAULT extensions.uuid_generate_v4() NOT NULL,
+                             email extensions.citext NOT NULL,
+                             nickname extensions.citext NOT NULL,
+                             hash text NOT NULL,
+                             secret_question text NOT NULL,
+                             secret_answer text NOT NULL,
+                             gender integer NOT NULL,
+                             community integer DEFAULT 2 NOT NULL,
+                             chat_channels text DEFAULT '@i*#$p%!?:^'::text NOT NULL
 );
 
 
-ALTER TABLE dofus.users
-    OWNER TO postgres;
+ALTER TABLE dofus.users OWNER TO postgres;
 
 --
 -- Data for Name: accounts; Type: TABLE DATA; Schema: dofus; Owner: postgres
@@ -83,8 +79,7 @@ COPY dofus.accounts (id, name, subscription, admin, user_id, last_access, last_i
 -- Data for Name: users; Type: TABLE DATA; Schema: dofus; Owner: postgres
 --
 
-COPY dofus.users (id, email, nickname, hash, secret_question, secret_answer, gender, community,
-                  chat_channels) FROM stdin;
+COPY dofus.users (id, email, nickname, hash, secret_question, secret_answer, gender, community, chat_channels) FROM stdin;
 8f2a7222-46f0-473b-9ab8-240782c43cbb	amulecregg@gmail.com	raulg	$argon2id$v=19$m=65536,t=1,p=2$kMLaZ9ovGkPa6+42pjUfpw$u2TkS/vHV4dhqihTu/U6WV04d5y28VWua3ZFGt31hQ0	question	answer	0	4	#$pi*:!^?%
 \.
 
@@ -134,7 +129,7 @@ ALTER TABLE ONLY dofus.users
 --
 
 ALTER TABLE ONLY dofus.accounts
-    ADD CONSTRAINT accounts_user_id_fkey FOREIGN KEY (user_id) REFERENCES dofus.users (id);
+    ADD CONSTRAINT accounts_user_id_fkey FOREIGN KEY (user_id) REFERENCES dofus.users(id);
 
 
 --

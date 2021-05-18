@@ -7,12 +7,12 @@ import (
 	"github.com/kralamoure/dofus"
 )
 
-func (r *Repo) CreateAccount(ctx context.Context, account dofus.Account) (id string, err error) {
+func (r *Db) CreateAccount(ctx context.Context, account dofus.Account) (id string, err error) {
 	query := "INSERT INTO dofus.accounts (name, subscription, admin, user_id, last_access, last_ip)" +
 		" VALUES ($1, $2, $3, $4, $5, $6)" +
 		" RETURNING id;"
 
-	err = repoError(
+	err = dbError(
 		r.pool.QueryRow(ctx, query,
 			account.Name, account.Subscription, account.Admin, account.UserId, account.LastAccess, account.LastIP).
 			Scan(&id),
@@ -20,7 +20,7 @@ func (r *Repo) CreateAccount(ctx context.Context, account dofus.Account) (id str
 	return
 }
 
-func (r *Repo) Accounts(ctx context.Context) (accounts map[string]dofus.Account, err error) {
+func (r *Db) Accounts(ctx context.Context) (accounts map[string]dofus.Account, err error) {
 	query := "SELECT id, name, subscription, admin, user_id, last_access, last_ip" +
 		" FROM dofus.accounts;"
 
@@ -43,7 +43,7 @@ func (r *Repo) Accounts(ctx context.Context) (accounts map[string]dofus.Account,
 	return
 }
 
-func (r *Repo) AccountsByUserId(ctx context.Context, userId string) (accounts map[string]dofus.Account, err error) {
+func (r *Db) AccountsByUserId(ctx context.Context, userId string) (accounts map[string]dofus.Account, err error) {
 	query := "SELECT id, name, subscription, admin, user_id, last_access, last_ip" +
 		" FROM dofus.accounts" +
 		" WHERE user_id = $1;"
@@ -67,12 +67,12 @@ func (r *Repo) AccountsByUserId(ctx context.Context, userId string) (accounts ma
 	return
 }
 
-func (r *Repo) Account(ctx context.Context, id string) (account dofus.Account, err error) {
+func (r *Db) Account(ctx context.Context, id string) (account dofus.Account, err error) {
 	query := "SELECT id, name, subscription, admin, user_id, last_access, last_ip" +
 		" FROM dofus.accounts" +
 		" WHERE id = $1;"
 
-	err = repoError(
+	err = dbError(
 		r.pool.QueryRow(ctx, query, id).
 			Scan(&account.Id, &account.Name, &account.Subscription, &account.Admin, &account.UserId,
 				&account.LastAccess, &account.LastIP),
@@ -80,12 +80,12 @@ func (r *Repo) Account(ctx context.Context, id string) (account dofus.Account, e
 	return
 }
 
-func (r *Repo) AccountByName(ctx context.Context, name string) (account dofus.Account, err error) {
+func (r *Db) AccountByName(ctx context.Context, name string) (account dofus.Account, err error) {
 	query := "SELECT id, name, subscription, admin, user_id, last_access, last_ip" +
 		" FROM dofus.accounts" +
 		" WHERE name = $1;"
 
-	err = repoError(
+	err = dbError(
 		r.pool.QueryRow(ctx, query, name).
 			Scan(&account.Id, &account.Name, &account.Subscription, &account.Admin, &account.UserId,
 				&account.LastAccess, &account.LastIP),
@@ -93,7 +93,7 @@ func (r *Repo) AccountByName(ctx context.Context, name string) (account dofus.Ac
 	return
 }
 
-func (r *Repo) SetAccountLastAccessAndLastIP(ctx context.Context, id string, lastAccess time.Time, lastIP string) error {
+func (r *Db) SetAccountLastAccessAndLastIP(ctx context.Context, id string, lastAccess time.Time, lastIP string) error {
 	query := "UPDATE dofus.accounts" +
 		" SET last_access = $2, last_ip = $3" +
 		" WHERE id <= $1;"

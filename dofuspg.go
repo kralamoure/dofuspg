@@ -1,4 +1,4 @@
-// Package dofuspg is a library that implements dofus.Repo interface (https://github.com/kralamoure/dofus) for a PostgreSQL database.
+// Package dofuspg is a library that implements dofus.Storer interface (https://github.com/kralamoure/dofus) for a PostgreSQL database.
 package dofuspg
 
 import (
@@ -14,16 +14,16 @@ var defaultTxOptions = pgx.TxOptions{
 	DeferrableMode: pgx.NotDeferrable,
 }
 
-type Repo struct {
+type Db struct {
 	pool *pgxpool.Pool
 }
 
-func NewRepo(pool *pgxpool.Pool) (*Repo, error) {
+func NewDb(pool *pgxpool.Pool) (*Db, error) {
 	if pool == nil {
 		return nil, errors.New("pool is nil")
 	}
 
-	login := &Repo{pool: pool}
+	login := &Db{pool: pool}
 
 	return login, nil
 }

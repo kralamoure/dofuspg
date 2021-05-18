@@ -15,7 +15,7 @@ const (
 
 type errCode string
 
-func repoError(err error) error {
+func dbError(err error) error {
 	if err == nil {
 		return nil
 	}
@@ -33,17 +33,17 @@ func repoError(err error) error {
 		return err
 	}
 
-	var repoErr error
+	var dbErr error
 	switch pgErr.ConstraintName {
 	case "users_email_key":
-		repoErr = dofus.ErrUserEmailAlreadyExists
+		dbErr = dofus.ErrUserEmailAlreadyExists
 	case "users_nickname_key":
-		repoErr = dofus.ErrUserNicknameAlreadyExists
+		dbErr = dofus.ErrUserNicknameAlreadyExists
 	case "accounts_name_key":
-		repoErr = dofus.ErrAccountNameAlreadyExists
+		dbErr = dofus.ErrAccountNameAlreadyExists
 	default:
-		repoErr = dofus.ErrAlreadyExists
+		dbErr = dofus.ErrAlreadyExists
 	}
 
-	return fmt.Errorf("%w: %s", repoErr, err)
+	return fmt.Errorf("%w: %s", dbErr, err)
 }

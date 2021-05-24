@@ -1,7 +1,6 @@
 # dofuspg
 
-`dofuspg` is a library that implements [dofus.Storer](https://github.com/kralamoure/dofus) interface for a PostgreSQL
-database.
+`dofuspg` is a PostgreSQL database implementation of the [dofus.Storer](https://github.com/kralamoure/dofus) interface.
 
 ## Requirements
 
